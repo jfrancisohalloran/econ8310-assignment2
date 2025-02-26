@@ -11,30 +11,22 @@ df_train = df_train.drop(['id', 'DateTime'], axis=1)
 X_train = df_train.drop('meal', axis=1)
 y_train = df_train['meal']
 
-dt = DecisionTreeClassifier(random_state=42)
-rf = RandomForestClassifier(random_state=42)
-xgbc = xgb.XGBClassifier(random_state=42, use_label_encoder=False, eval_metric='logloss')
-gbc = GradientBoostingClassifier(random_state=42)
+model = DecisionTreeClassifier(random_state=42)
 
-models = {'Decision Tree': dt, 'Random Forest': rf, 'XGBClassifier': xgbc, 'Gradient Boosting': gbc}
-
+cv_models = {
+    'Decision Tree': DecisionTreeClassifier(random_state=42),
+    'Random Forest': RandomForestClassifier(random_state=42),
+    'XGBClassifier': xgb.XGBClassifier(random_state=42, use_label_encoder=False, eval_metric='logloss'),
+    'Gradient Boosting': GradientBoostingClassifier(random_state=42)
+}
 cv_scores = {}
 print("Cross-Validation Accuracy Scores:")
-for name, model_candidate in models.items():
-    scores = cross_val_score(model_candidate, X_train, y_train, cv=5, scoring='accuracy')
+for name, candidate in cv_models.items():
+    scores = cross_val_score(candidate, X_train, y_train, cv=5, scoring='accuracy')
     cv_scores[name] = np.mean(scores)
     print(f"{name}: {np.mean(scores):.4f}")
 
-best_model_name = max(cv_scores, key=cv_scores.get)
-print("\nBest model based on CV accuracy:", best_model_name)
-if best_model_name == 'Decision Tree':
-    model = dt
-elif best_model_name == 'Random Forest':
-    model = rf
-elif best_model_name == 'XGBClassifier':
-    model = xgbc
-elif best_model_name == 'Gradient Boosting':
-    model = gbc
+print("\nBest model based on CV accuracy (for reference):", max(cv_scores, key=cv_scores.get))
 
 modelFit = model.fit(X_train, y_train)
 
