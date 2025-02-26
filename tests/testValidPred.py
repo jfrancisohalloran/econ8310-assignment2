@@ -28,5 +28,5 @@ def checkNumbers(series):
 
 class testCases(unittest.TestCase):
     def testValidPred(self):
-        self.assertTrue((len(list(pred))==1000 and checkNumbers(pred)), "Make sure your prediction consists of integers\nor floating point numbers, and is a list or array of 744\nfuture predictions!")
+        self.assertTrue((len(list(pred))==1000 and checkNumbers(pred)), "Make sure your prediction consists of integers\nor floating point numbers, and is a list or array of 1000\nfuture predictions!")
         

@@ -22,7 +22,6 @@ from assignment2 import model, modelFit, pred
 class testCases(unittest.TestCase):
     def testValidModel(self):
         modelType = str(type(model))
-        for i in ['DecisionTreeClassifier', 'RandomForestClassifier', 'XGBClassifier', 'GradientBoostingClassifier']:
-            if i in modelType:
-                self.assertTrue(True)
-        self.assertTrue(False)
+        valid = any(candidate in modelType for candidate in 
+                    ['DecisionTreeClassifier', 'RandomForestClassifier', 'XGBClassifier', 'GradientBoostingClassifier'])
+        self.assertTrue(valid)
