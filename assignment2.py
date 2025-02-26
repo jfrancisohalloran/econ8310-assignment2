@@ -1,25 +1,48 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+import xgboost as xgb
 
 train_url = "https://github.com/dustywhite7/Econ8310/raw/master/AssignmentData/assignment3.csv"
-train_df = pd.read_csv(train_url)
+df_train = pd.read_csv(train_url)
+df_train = df_train.drop(['id', 'DateTime'], axis=1)
+X_train = df_train.drop('meal', axis=1)
+y_train = df_train['meal']
 
-train_df = train_df.drop(['id', 'DateTime'], axis=1)
+dt = DecisionTreeClassifier(random_state=42)
+rf = RandomForestClassifier(random_state=42)
+xgbc = xgb.XGBClassifier(random_state=42, use_label_encoder=False, eval_metric='logloss')
+gbc = GradientBoostingClassifier(random_state=42)
 
-X_train = train_df.drop('meal', axis=1)
-y_train = train_df['meal']
+models = {'Decision Tree': dt, 'Random Forest': rf, 'XGBClassifier': xgbc, 'Gradient Boosting': gbc}
 
-model = RandomForestClassifier(random_state=42)
+cv_scores = {}
+print("Cross-Validation Accuracy Scores:")
+for name, model_candidate in models.items():
+    scores = cross_val_score(model_candidate, X_train, y_train, cv=5, scoring='accuracy')
+    cv_scores[name] = np.mean(scores)
+    print(f"{name}: {np.mean(scores):.4f}")
+
+best_model_name = max(cv_scores, key=cv_scores.get)
+print("\nBest model based on CV accuracy:", best_model_name)
+if best_model_name == 'Decision Tree':
+    model = dt
+elif best_model_name == 'Random Forest':
+    model = rf
+elif best_model_name == 'XGBClassifier':
+    model = xgbc
+elif best_model_name == 'Gradient Boosting':
+    model = gbc
+
 modelFit = model.fit(X_train, y_train)
 
 test_url = "https://github.com/dustywhite7/Econ8310/raw/master/AssignmentData/assignment3test.csv"
-test_df = pd.read_csv(test_url)
-
-test_df = test_df.drop(['id', 'DateTime'], axis=1)
-
-predictions = modelFit.predict(test_df)
-
+df_test = pd.read_csv(test_url)
+df_test = df_test.drop(['id', 'DateTime'], axis=1)
+if 'meal' in df_test.columns:
+    df_test = df_test.drop('meal', axis=1)
+predictions = modelFit.predict(df_test)
 pred = predictions.astype(int)
-
-print(pred) 
+print("\nFinal predictions (first 10):", pred[:10])
