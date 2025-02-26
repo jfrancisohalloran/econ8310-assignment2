@@ -11,8 +11,6 @@ df_train = df_train.drop(['id', 'DateTime'], axis=1)
 X_train = df_train.drop('meal', axis=1)
 y_train = df_train['meal']
 
-model = DecisionTreeClassifier(random_state=42)
-
 cv_models = {
     'Decision Tree': DecisionTreeClassifier(random_state=42),
     'Random Forest': RandomForestClassifier(random_state=42),
@@ -26,15 +24,23 @@ for name, candidate in cv_models.items():
     cv_scores[name] = np.mean(scores)
     print(f"{name}: {np.mean(scores):.4f}")
 
-print("\nBest model based on CV accuracy (for reference):", max(cv_scores, key=cv_scores.get))
+best_model_name = max(cv_scores, key=cv_scores.get)
+print("\nBest model based on CV accuracy:", best_model_name)
 
+model = DecisionTreeClassifier(random_state=42)
 modelFit = model.fit(X_train, y_train)
 
 test_url = "https://github.com/dustywhite7/Econ8310/raw/master/AssignmentData/assignment3test.csv"
 df_test = pd.read_csv(test_url)
 df_test = df_test.drop(['id', 'DateTime'], axis=1)
+
 if 'meal' in df_test.columns:
     df_test = df_test.drop('meal', axis=1)
-predictions = modelFit.predict(df_test)
-pred = predictions.astype(int)
-print("\nFinal predictions (first 10):", pred[:10])
+
+predictions = modelFit.predict(df_test) 
+
+predictions = predictions.flatten()
+
+pred = predictions.astype(int).tolist()
+print("Length of pred:", len(pred))
+print("First 10 predictions:", pred[:10])
