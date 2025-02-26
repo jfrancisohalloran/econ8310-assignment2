@@ -22,4 +22,4 @@ predictions = modelFit.predict(test_df)
 
 pred = predictions.astype(int)
 
-print(pred)
+print(pred) 
